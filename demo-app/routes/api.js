@@ -1,5 +1,6 @@
 const express = require('express');
 const store = require('../data/store');
+const adminStore = require('../data/adminStore');
 
 const router = express.Router();
 
@@ -46,6 +47,7 @@ router.get('/totals', (req, res) => {
 
 router.post('/test/reset', (req, res) => {
   store.reset();
+  adminStore.reset();
   res.status(204).send();
 });
 
