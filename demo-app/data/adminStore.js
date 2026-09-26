@@ -63,11 +63,30 @@ function createTicket({ name, price }) {
   return ticket;
 }
 
-function createLot({ name, startPrice }) {
-  const lot = { id: makeEntityId('lot'), name, startPrice };
+function createLot({ name, startPrice, buyNowPrice }) {
+  const lot = {
+    id: makeEntityId('lot'),
+    name,
+    startPrice,
+    buyNowPrice: buyNowPrice ?? null,
+    sold: false,
+    soldTo: null,
+  };
   state.lots.set(lot.id, lot);
   const item = state.checklist.find((i) => i.id === 'set-up-lots');
   item.complete = true;
+  return lot;
+}
+
+function getLot(id) {
+  return state.lots.get(id) || null;
+}
+
+function markLotSold(id, guestId) {
+  const lot = state.lots.get(id);
+  if (!lot) return null;
+  lot.sold = true;
+  lot.soldTo = guestId;
   return lot;
 }
 
@@ -78,4 +97,6 @@ module.exports = {
   getChecklist,
   createTicket,
   createLot,
+  getLot,
+  markLotSold,
 };
