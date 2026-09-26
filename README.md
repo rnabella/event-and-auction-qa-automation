@@ -35,7 +35,8 @@ src/          the framework: typed API clients (DonorApi, AdminApi),
               Playwright Page Objects for both sides, environment
               config — everything the tests are built on
 tests/        the tests themselves, organized by layer and by side:
-              donor/, api/ (Phase 1); setup/, admin/ (Phase 2)
+              donor/, api/ (Phase 1); setup/, admin/ (Phase 2) — Phase 3a
+              (buy-now) added more tests to donor/ and api/, no new dirs
 ```
 
 `demo-app` is deliberately plain, untyped, unreviewed-by-the-framework's
@@ -86,6 +87,12 @@ in `demo-app/data/adminStore.js` — this app has no real users, so there's
 nothing to protect. Don't take the pattern (or the credentials) into a
 real app.
 
+A different, narrower pattern shows up in `tests/donor/buy-now.spec.ts`:
+a donor-side test that merely needs _a_ valid admin session (to create a
+fixture lot) logs in inline via the API, once, rather than reusing the
+`admin` project's storageState — it isn't testing admin login itself, so
+it doesn't need that machinery.
+
 ## A design decision worth explaining: the lagging total
 
 `demo-app`'s `/api/totals` endpoint doesn't update the instant a donation
@@ -114,7 +121,7 @@ try.
 
 | Command                   | What it does                                                       |
 | ------------------------- | ------------------------------------------------------------------ |
-| `npm test`                | Full suite: donor + admin E2E (Chromium) and API tests, 12 tests   |
+| `npm test`                | Full suite: donor + admin E2E (Chromium) and API tests, 15 tests   |
 | `npm run test:smoke`      | Just the `@smoke`-tagged subset — the critical path, fast          |
 | `npm run test:regression` | Alias for the full suite (same as `npm test`)                      |
 | `npm run demo-app`        | Runs the demo app standalone on `:3000`, for poking at it manually |
@@ -134,7 +141,7 @@ tests reset it between runs via `POST /api/test/reset`. Two tests running
 concurrently against that one store can interleave their resets and
 writes — which is exactly the bug described above. Serializing
 (`workers: 1`) closes that off simply, at the cost of parallelism, which
-is a fine trade at twelve tests. A more scalable fix — namespacing state
+is a fine trade at fifteen tests. A more scalable fix — namespacing state
 per test or per worker — is the natural next step if this suite grows
 enough for single-worker execution to become a real bottleneck.
 
@@ -159,5 +166,9 @@ the API. Complete.
 checklist that auto-completes based on real actions, ticket/lot creation,
 and negative-auth coverage. Complete.
 
-Planned next: additional donor scenarios — buy-now, sealed bidding, raffle
+**Phase 3a** ("buy-now"): a donor can purchase a specific auction lot at
+its fixed buy-now price; a second purchase attempt, or a purchase attempt
+on a lot with no buy-now price, is rejected with a real error. Complete.
+
+Planned next: additional donor scenarios — sealed bidding, raffle
 entry — plus cross-browser hardening (Phase 3).

@@ -78,6 +78,10 @@ function createLot({ name, startPrice, buyNowPrice }) {
   return lot;
 }
 
+// Called from both the admin router (lot creation/management) and the
+// public, unauthenticated donor router (buying a lot) — lots are
+// admin-created but donor-purchasable, so this module's name is a slight
+// misnomer for these two functions specifically.
 function getLot(id) {
   return state.lots.get(id) || null;
 }

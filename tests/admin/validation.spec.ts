@@ -21,6 +21,13 @@ test('creating a lot without a name is rejected', async ({ request }) => {
   expect(res.status()).toBe(400);
 });
 
+test('creating a lot with a non-positive buyNowPrice is rejected', async ({ request }) => {
+  const res = await request.post(`${env.apiBaseUrl}/admin/lots`, {
+    data: { name: 'Bad Lot', startPrice: 25, buyNowPrice: -5 },
+  });
+  expect(res.status()).toBe(400);
+});
+
 test('a rejected ticket submission does not complete the checklist item', async ({ request }) => {
   const api = new AdminApi(request, env.apiBaseUrl);
   await request.post(`${env.apiBaseUrl}/admin/tickets`, {

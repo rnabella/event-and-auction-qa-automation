@@ -38,3 +38,23 @@ test('buying a lot with no buy-now price is rejected', async ({ request }) => {
   });
   expect(res.status()).toBe(400);
 });
+
+test('buying a lot that does not exist is rejected', async ({ request }) => {
+  const res = await request.post(`${env.apiBaseUrl}/lots/lot-does-not-exist/buy-now`, {
+    data: { guestId: 'guest-1' },
+  });
+  expect(res.status()).toBe(404);
+});
+
+test('buying a lot with a guestId that does not reference a real guest is rejected', async ({
+  request,
+}) => {
+  const adminApi = new AdminApi(request, env.apiBaseUrl);
+  await adminApi.login('admin', 'admin123');
+  const lot = await adminApi.createLot('Signed Guitar', 25, 50);
+
+  const res = await request.post(`${env.apiBaseUrl}/lots/${lot.id}/buy-now`, {
+    data: { guestId: 'not-a-real-guest' },
+  });
+  expect(res.status()).toBe(400);
+});
