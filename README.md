@@ -27,11 +27,15 @@ both default to `http://localhost:3000`.
 
 ```
 demo-app/     the system under test — a small Express app with an
-              in-memory store, a JSON API, and static donor-facing pages
-              (register → donate → checkout → confirm)
-src/          the framework: typed API client, Playwright Page Objects,
-              environment config — everything the tests are built on
-tests/        the tests themselves, organized by layer (donor UI, api)
+              in-memory store, a JSON API, and static pages for two
+              sides: donor-facing (register → donate → checkout →
+              confirm) and admin-facing (login, a setup checklist,
+              creating tickets and auction lots)
+src/          the framework: typed API clients (DonorApi, AdminApi),
+              Playwright Page Objects for both sides, environment
+              config — everything the tests are built on
+tests/        the tests themselves, organized by layer and by side:
+              donor/, api/ (Phase 1); setup/, admin/ (Phase 2)
 ```
 
 `demo-app` is deliberately plain, untyped, unreviewed-by-the-framework's
@@ -43,17 +47,44 @@ to.
 `src` and `tests` follow a standard Page Object Model, split into two
 independent layers that can each be exercised on their own:
 
-- **UI layer** (`src/pages/`, `tests/*/` non-`api` specs) — Page Object
-  classes wrapping the donor journey's pages, driven through a real browser.
-- **API layer** (`src/api/DonorApi.ts`, `tests/api/`) — a typed client
-  hitting the same backend directly, no browser involved. Faster, and
-  useful for asserting on state the UI doesn't surface directly (e.g. the
-  running total).
+- **UI layer** (`src/pages/`, `tests/donor/`, `tests/admin/`) — Page
+  Object classes wrapping both the donor journey's pages and the admin
+  pages, driven through a real browser.
+- **API layer** (`src/api/DonorApi.ts`, `src/api/AdminApi.ts`,
+  `tests/api/`) — typed clients hitting the same backend directly, no
+  browser involved. Faster, and useful for asserting on state the UI
+  doesn't surface directly (e.g. the running total, or a route's exact
+  status code).
 
 Both layers share `src/config/env.ts`, which supports pointing the whole
 suite at a different target via `ENV_FILE=.env.other npm test` — useful if
 this ever grows a second environment (a staging deploy of the demo app,
 for instance) without touching any test code.
+
+## Why the admin tests log in once, not per test
+
+Admin routes (`/api/admin/*`) require a session cookie, issued by
+`POST /api/admin/login`. Rather than logging in inside every admin test,
+the suite uses Playwright's standard idiom for this: a `setup` project
+(`tests/setup/admin-login.setup.ts`) logs in once and saves the resulting
+cookie to `playwright/.auth/admin.json` (gitignored — it's session state,
+not something to commit); the `admin` project declares `setup` as a
+dependency and reuses that saved storageState for every test in
+`tests/admin/`. No admin test calls `login()` itself.
+
+One non-obvious thing this surfaced: `--grep @smoke` does **not** filter
+out the `setup` project's test, even when it isn't itself tagged. That's
+not a guess — it was confirmed two ways: reading Playwright's installed
+runner source (dependency-project suites are built from an unfiltered
+project list, independent of the CLI `--grep`), and a differential test
+(temporarily removing the tag and re-running to confirm the setup step
+still executed). The tag on the setup test is kept anyway, for clarity,
+but isn't load-bearing — worth knowing before "cleaning it up."
+
+Demo admin credentials (`admin` / `admin123`) are intentionally hardcoded
+in `demo-app/data/adminStore.js` — this app has no real users, so there's
+nothing to protect. Don't take the pattern (or the credentials) into a
+real app.
 
 ## A design decision worth explaining: the lagging total
 
@@ -83,7 +114,7 @@ try.
 
 | Command                   | What it does                                                       |
 | ------------------------- | ------------------------------------------------------------------ |
-| `npm test`                | Full suite: donor E2E (Chromium) + API tests                       |
+| `npm test`                | Full suite: donor + admin E2E (Chromium) and API tests, 12 tests   |
 | `npm run test:smoke`      | Just the `@smoke`-tagged subset — the critical path, fast          |
 | `npm run test:regression` | Alias for the full suite (same as `npm test`)                      |
 | `npm run demo-app`        | Runs the demo app standalone on `:3000`, for poking at it manually |
@@ -103,9 +134,20 @@ tests reset it between runs via `POST /api/test/reset`. Two tests running
 concurrently against that one store can interleave their resets and
 writes — which is exactly the bug described above. Serializing
 (`workers: 1`) closes that off simply, at the cost of parallelism, which
-is a fine trade at three tests. A more scalable fix — namespacing state per
-test or per worker — is the natural next step if this suite grows enough
-for single-worker execution to become a real bottleneck.
+is a fine trade at twelve tests. A more scalable fix — namespacing state
+per test or per worker — is the natural next step if this suite grows
+enough for single-worker execution to become a real bottleneck.
+
+The admin store adds a second instance of a related, subtler bug: its
+`reset()` deliberately does _not_ clear sessions (the `setup` project logs
+in once per run; clearing sessions on every test's reset would log
+everyone out after test one), but it originally shared its id counter
+between sessions and entities (tickets/lots) — so a second login after a
+reset would silently reuse a still-valid session id. Fixed by giving
+sessions their own counter, one `reset()` doesn't touch. The negative-auth
+tests (`tests/admin/auth.spec.ts`, `login.spec.ts`) exist specifically
+because the phase that added authentication had, for a while, zero tests
+proving authentication denied anything.
 
 ## Status
 
@@ -113,6 +155,9 @@ for single-worker execution to become a real bottleneck.
 (register → donate → checkout → pay → confirm), tested end-to-end and via
 the API. Complete.
 
-Planned next: an admin-side login/checklist/ticketing flow (Phase 2), then
-additional donor scenarios — buy-now, sealed bidding, raffle entry — plus
-cross-browser hardening (Phase 3).
+**Phase 2** ("admin side"): admin login with storageState reuse, a setup
+checklist that auto-completes based on real actions, ticket/lot creation,
+and negative-auth coverage. Complete.
+
+Planned next: additional donor scenarios — buy-now, sealed bidding, raffle
+entry — plus cross-browser hardening (Phase 3).
