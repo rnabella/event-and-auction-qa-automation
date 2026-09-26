@@ -1,0 +1,14 @@
+<!doctype html>
+<html>
+  <head><title>Create Ticket</title></head>
+  <body>
+    <h1>Create Ticket</h1>
+    <form id="ticket-form">
+      <input id="ticket-name" name="name" placeholder="Ticket name" required />
+      <input id="ticket-price" name="price" type="number" min="1" step="1" placeholder="Price (USD)" required />
+      <button type="submit">Create ticket</button>
+    </form>
+    <p id="ticket-error" hidden></p>
+    <script src="/admin/tickets.js"></script>
+  </body>
+</html>
