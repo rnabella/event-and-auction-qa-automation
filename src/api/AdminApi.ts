@@ -16,6 +16,9 @@ export interface Lot {
   id: string;
   name: string;
   startPrice: number;
+  buyNowPrice: number | null;
+  sold: boolean;
+  soldTo: string | null;
 }
 
 export class AdminApi {
@@ -45,9 +48,13 @@ export class AdminApi {
     return res.json();
   }
 
-  async createLot(name: string, startPrice: number): Promise<Lot> {
+  async createLot(name: string, startPrice: number, buyNowPrice?: number): Promise<Lot> {
     const res = await this.request.post(`${this.baseUrl}/admin/lots`, {
-      data: { name, startPrice },
+      data: {
+        name,
+        startPrice,
+        ...(buyNowPrice !== undefined ? { buyNowPrice } : {}),
+      },
     });
     if (!res.ok()) throw new Error(`createLot failed: ${res.status()}`);
     return res.json();

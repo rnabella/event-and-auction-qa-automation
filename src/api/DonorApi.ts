@@ -14,6 +14,15 @@ export interface Donation {
   createdAt: string;
 }
 
+export interface Lot {
+  id: string;
+  name: string;
+  startPrice: number;
+  buyNowPrice: number | null;
+  sold: boolean;
+  soldTo: string | null;
+}
+
 export class DonorApi {
   constructor(
     private request: APIRequestContext,
@@ -47,6 +56,14 @@ export class DonorApi {
   async getTotals(): Promise<{ totalRaised: number }> {
     const res = await this.request.get(`${this.baseUrl}/totals`);
     if (!res.ok()) throw new Error(`getTotals failed: ${res.status()}`);
+    return res.json();
+  }
+
+  async buyNow(lotId: string, guestId: string): Promise<Lot> {
+    const res = await this.request.post(`${this.baseUrl}/lots/${lotId}/buy-now`, {
+      data: { guestId },
+    });
+    if (!res.ok()) throw new Error(`buyNow failed: ${res.status()}`);
     return res.json();
   }
 
