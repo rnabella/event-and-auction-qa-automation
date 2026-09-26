@@ -59,14 +59,17 @@ router.post('/tickets', requireAuth, (req, res) => {
 });
 
 router.post('/lots', requireAuth, (req, res) => {
-  const { name, startPrice } = req.body;
+  const { name, startPrice, buyNowPrice } = req.body;
   if (!name) {
     return res.status(400).json({ error: 'name is required' });
   }
   if (typeof startPrice !== 'number' || startPrice <= 0) {
     return res.status(400).json({ error: 'startPrice must be a positive number' });
   }
-  res.status(201).json(adminStore.createLot({ name, startPrice }));
+  if (buyNowPrice !== undefined && (typeof buyNowPrice !== 'number' || buyNowPrice <= 0)) {
+    return res.status(400).json({ error: 'buyNowPrice must be a positive number if provided' });
+  }
+  res.status(201).json(adminStore.createLot({ name, startPrice, buyNowPrice }));
 });
 
 module.exports = router;
