@@ -1,0 +1,41 @@
+{
+  "name": "event-and-auction-qa-automation",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Playwright + TypeScript QA automation portfolio project for a fictional Event & Auction Platform",
+  "main": "index.js",
+  "scripts": {
+    "test": "playwright test --project=chromium --project=api",
+    "test:smoke": "playwright test --project=chromium --project=api --grep @smoke",
+    "test:regression": "npm run test",
+    "demo-app": "node demo-app/server.js",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "format": "prettier --check .",
+    "format:write": "prettier --write ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rnabella/event-and-auction-qa-automation.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/rnabella/event-and-auction-qa-automation/issues"
+  },
+  "homepage": "https://github.com/rnabella/event-and-auction-qa-automation#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.63.0",
+    "@types/node": "^26.6.3",
+    "dotenv": "^18.0.4",
+    "eslint": "^10.11.0",
+    "prettier": "^3.9.9",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.70.1"
+  },
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}
