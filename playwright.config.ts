@@ -5,6 +5,7 @@ export default defineConfig({
   testDir: './tests',
   timeout: 30_000,
   fullyParallel: true,
+  workers: 1,
   reporter: [['list']],
   use: {
     baseURL: process.env.BASE_URL || 'http://localhost:3000',
@@ -25,7 +26,6 @@ export default defineConfig({
     {
       name: 'api',
       testDir: './tests/api',
-      dependencies: ['chromium'],
     },
   ],
 });
