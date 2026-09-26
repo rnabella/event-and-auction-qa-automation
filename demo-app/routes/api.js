@@ -1,0 +1,52 @@
+const express = require('express');
+const store = require('../data/store');
+
+const router = express.Router();
+
+router.post('/guests', (req, res) => {
+  const { name, email } = req.body;
+  if (!name || !email) {
+    return res.status(400).json({ error: 'name and email are required' });
+  }
+  res.status(201).json(store.createGuest({ name, email }));
+});
+
+router.get('/guests/:id', (req, res) => {
+  const guest = store.getGuest(req.params.id);
+  if (!guest) return res.status(404).json({ error: 'guest not found' });
+  res.json(guest);
+});
+
+router.post('/donations', (req, res) => {
+  const { guestId, amount } = req.body;
+  if (!guestId || !store.getGuest(guestId)) {
+    return res.status(400).json({ error: 'guestId must reference an existing guest' });
+  }
+  if (typeof amount !== 'number' || amount <= 0) {
+    return res.status(400).json({ error: 'amount must be a positive number' });
+  }
+  res.status(201).json(store.createDonation({ guestId, amount }));
+});
+
+router.get('/donations/:id', (req, res) => {
+  const donation = store.getDonation(req.params.id);
+  if (!donation) return res.status(404).json({ error: 'donation not found' });
+  res.json(donation);
+});
+
+router.post('/donations/:id/pay', (req, res) => {
+  const donation = store.payDonation(req.params.id);
+  if (!donation) return res.status(404).json({ error: 'donation not found' });
+  res.json(donation);
+});
+
+router.get('/totals', (req, res) => {
+  res.json(store.getTotals());
+});
+
+router.post('/test/reset', (req, res) => {
+  store.reset();
+  res.status(204).send();
+});
+
+module.exports = router;
