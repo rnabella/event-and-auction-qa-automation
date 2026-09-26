@@ -9,11 +9,17 @@ const state = {
   totalRaised: 0,
 };
 
+// Module-level tracking of all pending timeouts across all tests
+const allPendingTimeouts = [];
+
 function reset() {
   state.guests.clear();
   state.donations.clear();
   state.totalRaised = 0;
   nextId = 1;
+  // Clear all pending setTimeout callbacks to prevent state pollution between tests
+  allPendingTimeouts.forEach(timeoutId => clearTimeout(timeoutId));
+  allPendingTimeouts.length = 0;
 }
 
 function createGuest({ name, email }) {
@@ -49,9 +55,10 @@ function payDonation(id) {
   // Deliberately delayed: mirrors a real-world eventually-consistent totals
   // endpoint (e.g. recomputed by a downstream job), so consumers must poll
   // rather than assume the total is current immediately after payment.
-  setTimeout(() => {
+  const timeoutId = setTimeout(() => {
     state.totalRaised += donation.amount;
   }, 300);
+  allPendingTimeouts.push(timeoutId);
   return donation;
 }
 
