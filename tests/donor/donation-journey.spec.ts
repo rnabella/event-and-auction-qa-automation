@@ -30,6 +30,6 @@ test('donor can register, donate, check out, and see the total raised update @sm
   // endpoint. Poll rather than trust the very first render.
   await expect(async () => {
     await confirmationPage.refreshTotal();
-    await expect(confirmationPage.totalRaised).toContainText('$50');
+    await expect(confirmationPage.totalRaised).toContainText('$50', { timeout: 400 });
   }).toPass();
 });
