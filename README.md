@@ -121,7 +121,7 @@ try.
 
 | Command                   | What it does                                                       |
 | ------------------------- | ------------------------------------------------------------------ |
-| `npm test`                | Full suite: donor + admin E2E (Chromium) and API tests, 15 tests   |
+| `npm test`                | Full suite: donor + admin E2E (Chromium) and API tests, 19 tests   |
 | `npm run test:smoke`      | Just the `@smoke`-tagged subset — the critical path, fast          |
 | `npm run test:regression` | Alias for the full suite (same as `npm test`)                      |
 | `npm run demo-app`        | Runs the demo app standalone on `:3000`, for poking at it manually |
@@ -141,7 +141,7 @@ tests reset it between runs via `POST /api/test/reset`. Two tests running
 concurrently against that one store can interleave their resets and
 writes — which is exactly the bug described above. Serializing
 (`workers: 1`) closes that off simply, at the cost of parallelism, which
-is a fine trade at fifteen tests. A more scalable fix — namespacing state
+is a fine trade at nineteen tests. A more scalable fix — namespacing state
 per test or per worker — is the natural next step if this suite grows
 enough for single-worker execution to become a real bottleneck.
 
