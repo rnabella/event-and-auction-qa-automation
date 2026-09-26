@@ -3,7 +3,6 @@
   "version": "0.1.0",
   "private": true,
   "description": "Playwright + TypeScript QA automation portfolio project for a fictional Event & Auction Platform",
-  "main": "index.js",
   "scripts": {
     "test": "playwright test --project=chromium --project=api",
     "test:smoke": "playwright test --project=chromium --project=api --grep @smoke",

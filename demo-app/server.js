@@ -9,8 +9,10 @@ app.use(express.json());
 app.use('/api', apiRouter);
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.listen(PORT, () => {
-  console.log(`Event & Auction demo app listening on http://localhost:${PORT}`);
-});
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`Event & Auction demo app listening on http://localhost:${PORT}`);
+  });
+}
 
 module.exports = app;

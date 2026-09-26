@@ -9,11 +9,17 @@ const state = {
   totalRaised: 0,
 };
 
+const pendingTotalTimers = [];
+
 function reset() {
   state.guests.clear();
   state.donations.clear();
   state.totalRaised = 0;
   nextId = 1;
+  for (const timer of pendingTotalTimers) {
+    clearTimeout(timer);
+  }
+  pendingTotalTimers.length = 0;
 }
 
 function createGuest({ name, email }) {
@@ -46,12 +52,11 @@ function payDonation(id) {
   const donation = state.donations.get(id);
   if (!donation) return null;
   donation.status = 'paid';
-  // Deliberately delayed: mirrors a real-world eventually-consistent totals
-  // endpoint (e.g. recomputed by a downstream job), so consumers must poll
-  // rather than assume the total is current immediately after payment.
-  setTimeout(() => {
+  // Totals are recomputed by a reconciliation pass that lags the payment write.
+  const timer = setTimeout(() => {
     state.totalRaised += donation.amount;
   }, 300);
+  pendingTotalTimers.push(timer);
   return donation;
 }
 
