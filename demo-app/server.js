@@ -7,8 +7,8 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
-app.use('/api', apiRouter);
 app.use('/api/admin', adminRouter);
+app.use('/api', apiRouter);
 app.use(express.static(path.join(__dirname, 'public')));
 
 if (require.main === module) {

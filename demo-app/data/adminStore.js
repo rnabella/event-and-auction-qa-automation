@@ -1,9 +1,16 @@
+// Demo-fixture credentials only — this app has no real users or real secrets.
 const ADMIN_USERNAME = 'admin';
 const ADMIN_PASSWORD = 'admin123';
 
-let nextId = 1;
-function makeId(prefix) {
-  return `${prefix}-${nextId++}`;
+let nextEntityId = 1;
+let nextSessionId = 1;
+
+function makeEntityId(prefix) {
+  return `${prefix}-${nextEntityId++}`;
+}
+
+function makeSessionId() {
+  return `session-${nextSessionId++}`;
 }
 
 function freshChecklist() {
@@ -24,7 +31,7 @@ function reset() {
   state.tickets.clear();
   state.lots.clear();
   state.checklist = freshChecklist();
-  nextId = 1;
+  nextEntityId = 1;
   // Sessions are intentionally NOT cleared here. The `setup` Playwright
   // project logs in once per test run and saves that session to
   // playwright/.auth/admin.json; every test's beforeEach calls this
@@ -35,7 +42,7 @@ function reset() {
 
 function login(username, password) {
   if (username !== ADMIN_USERNAME || password !== ADMIN_PASSWORD) return null;
-  const sessionId = makeId('session');
+  const sessionId = makeSessionId();
   state.sessions.add(sessionId);
   return sessionId;
 }
@@ -49,7 +56,7 @@ function getChecklist() {
 }
 
 function createTicket({ name, price }) {
-  const ticket = { id: makeId('ticket'), name, price };
+  const ticket = { id: makeEntityId('ticket'), name, price };
   state.tickets.set(ticket.id, ticket);
   const item = state.checklist.find((i) => i.id === 'set-up-tickets');
   item.complete = true;
@@ -57,7 +64,7 @@ function createTicket({ name, price }) {
 }
 
 function createLot({ name, startPrice }) {
-  const lot = { id: makeId('lot'), name, startPrice };
+  const lot = { id: makeEntityId('lot'), name, startPrice };
   state.lots.set(lot.id, lot);
   const item = state.checklist.find((i) => i.id === 'set-up-lots');
   item.complete = true;

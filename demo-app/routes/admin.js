@@ -3,6 +3,9 @@ const adminStore = require('../data/adminStore');
 
 const router = express.Router();
 
+// Demo-grade: session ids are internally generated as `session-N` (see
+// adminStore.js), so no URL-decoding or embedded-semicolon handling is
+// needed here. A real app would use a proper cookie-parsing library.
 function parseSessionId(req) {
   const cookieHeader = req.headers.cookie;
   if (!cookieHeader) return null;
@@ -31,6 +34,10 @@ router.post('/login', (req, res) => {
   res.status(200).json({ ok: true });
 });
 
+// Clears the cookie client-side only — doesn't remove the session from
+// adminStore, since the admin Playwright project shares one session across
+// its whole run (see adminStore.js's reset()). Nothing currently calls this
+// route; it's here for completeness, not exercised by the test suite.
 router.post('/logout', requireAuth, (req, res) => {
   res.setHeader('Set-Cookie', 'sessionId=; HttpOnly; Path=/; Max-Age=0');
   res.status(204).send();
