@@ -1,11 +1,21 @@
 <!doctype html>
 <html>
-  <head><title>Create Auction Lot</title></head>
+  <head>
+    <title>Create Auction Lot</title>
+  </head>
   <body>
     <h1>Create Auction Lot</h1>
     <form id="lot-form">
       <input id="lot-name" name="name" placeholder="Lot name" required />
-      <input id="lot-start-price" name="startPrice" type="number" min="1" step="1" placeholder="Starting price (USD)" required />
+      <input
+        id="lot-start-price"
+        name="startPrice"
+        type="number"
+        min="1"
+        step="1"
+        placeholder="Starting price (USD)"
+        required
+      />
       <button type="submit">Create lot</button>
     </form>
     <p id="lot-error" hidden></p>
