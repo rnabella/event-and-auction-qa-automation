@@ -36,5 +36,17 @@ export default defineConfig({
       name: 'api',
       testDir: './tests/api',
     },
+    {
+      name: 'setup',
+      testDir: './tests/setup',
+      testMatch: /.*\.setup\.ts/,
+      use: { ...devices['Desktop Chrome'] },
+    },
+    {
+      name: 'admin',
+      testDir: './tests/admin',
+      use: { ...devices['Desktop Chrome'], storageState: 'playwright/.auth/admin.json' },
+      dependencies: ['setup'],
+    },
   ],
 });
