@@ -45,6 +45,28 @@ router.get('/totals', (req, res) => {
   res.json(store.getTotals());
 });
 
+router.get('/lots/:id', (req, res) => {
+  const lot = adminStore.getLot(req.params.id);
+  if (!lot) return res.status(404).json({ error: 'lot not found' });
+  res.json(lot);
+});
+
+router.post('/lots/:id/buy-now', (req, res) => {
+  const { guestId } = req.body;
+  const lot = adminStore.getLot(req.params.id);
+  if (!lot) return res.status(404).json({ error: 'lot not found' });
+  if (!guestId || !store.getGuest(guestId)) {
+    return res.status(400).json({ error: 'guestId must reference an existing guest' });
+  }
+  if (lot.buyNowPrice == null) {
+    return res.status(400).json({ error: 'this lot does not have a buy-now price' });
+  }
+  if (lot.sold) {
+    return res.status(409).json({ error: 'this lot has already been sold' });
+  }
+  res.status(200).json(adminStore.markLotSold(req.params.id, guestId));
+});
+
 router.post('/test/reset', (req, res) => {
   store.reset();
   adminStore.reset();
