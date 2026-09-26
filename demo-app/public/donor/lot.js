@@ -5,8 +5,7 @@ const guestId = params.get('guestId');
 async function loadLot() {
   const res = await fetch(`/api/lots/${lotId}`);
   const lot = await res.json();
-  document.getElementById('lot-summary').textContent =
-    `${lot.name} — Buy now: $${lot.buyNowPrice}`;
+  document.getElementById('lot-summary').textContent = `${lot.name} — Buy now: $${lot.buyNowPrice}`;
 }
 loadLot();
 
