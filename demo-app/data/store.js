@@ -59,4 +59,12 @@ function getTotals() {
   return { totalRaised: state.totalRaised };
 }
 
-module.exports = { reset, createGuest, getGuest, createDonation, getDonation, payDonation, getTotals };
+module.exports = {
+  reset,
+  createGuest,
+  getGuest,
+  createDonation,
+  getDonation,
+  payDonation,
+  getTotals,
+};

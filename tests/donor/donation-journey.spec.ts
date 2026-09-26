@@ -11,7 +11,9 @@ test.beforeEach(async ({ request }) => {
   await api.reset();
 });
 
-test('donor can register, donate, check out, and see the total raised update @smoke', async ({ page }) => {
+test('donor can register, donate, check out, and see the total raised update @smoke', async ({
+  page,
+}) => {
   const registerPage = new RegisterPage(page);
   await registerPage.open();
   await registerPage.register('Ada Lovelace', 'ada@example.com');

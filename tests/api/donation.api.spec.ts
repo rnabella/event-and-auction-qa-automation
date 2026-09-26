@@ -7,7 +7,9 @@ test.beforeEach(async ({ request }) => {
   await api.reset();
 });
 
-test('paying a donation eventually increases the total raised by the donation amount @smoke', async ({ request }) => {
+test('paying a donation eventually increases the total raised by the donation amount @smoke', async ({
+  request,
+}) => {
   const api = new DonorApi(request, env.apiBaseUrl);
 
   const guest = await api.registerGuest('Grace Hopper', 'grace@example.com');
