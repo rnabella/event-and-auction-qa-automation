@@ -71,6 +71,8 @@ function createLot({ name, startPrice, buyNowPrice }) {
     buyNowPrice: buyNowPrice ?? null,
     sold: false,
     soldTo: null,
+    bids: [],
+    winningBid: null,
   };
   state.lots.set(lot.id, lot);
   const item = state.checklist.find((i) => i.id === 'set-up-lots');
@@ -86,12 +88,23 @@ function getLot(id) {
   return state.lots.get(id) || null;
 }
 
-function markLotSold(id, guestId) {
+function markLotSold(id, guestId, winningBid) {
   const lot = state.lots.get(id);
   if (!lot) return null;
   lot.sold = true;
   lot.soldTo = guestId;
+  if (winningBid !== undefined) {
+    lot.winningBid = winningBid;
+  }
   return lot;
+}
+
+function addBid(id, { guestId, amount }) {
+  const lot = state.lots.get(id);
+  if (!lot) return null;
+  const bid = { id: makeEntityId('bid'), guestId, amount };
+  lot.bids.push(bid);
+  return bid;
 }
 
 module.exports = {
@@ -103,4 +116,5 @@ module.exports = {
   createLot,
   getLot,
   markLotSold,
+  addBid,
 };
