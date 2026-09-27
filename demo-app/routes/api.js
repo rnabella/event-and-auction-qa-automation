@@ -67,6 +67,22 @@ router.post('/lots/:id/buy-now', (req, res) => {
   res.status(200).json(adminStore.markLotSold(req.params.id, guestId));
 });
 
+router.post('/lots/:id/bid', (req, res) => {
+  const { guestId, amount } = req.body;
+  const lot = adminStore.getLot(req.params.id);
+  if (!lot) return res.status(404).json({ error: 'lot not found' });
+  if (!guestId || !store.getGuest(guestId)) {
+    return res.status(400).json({ error: 'guestId must reference an existing guest' });
+  }
+  if (typeof amount !== 'number' || amount <= 0) {
+    return res.status(400).json({ error: 'amount must be a positive number' });
+  }
+  if (lot.sold) {
+    return res.status(409).json({ error: 'this lot has already been sold' });
+  }
+  res.status(201).json(adminStore.addBid(req.params.id, { guestId, amount }));
+});
+
 router.post('/test/reset', (req, res) => {
   store.reset();
   adminStore.reset();
