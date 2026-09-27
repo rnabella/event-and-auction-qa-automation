@@ -72,4 +72,17 @@ router.post('/lots', requireAuth, (req, res) => {
   res.status(201).json(adminStore.createLot({ name, startPrice, buyNowPrice }));
 });
 
+router.post('/lots/:id/close', requireAuth, (req, res) => {
+  const lot = adminStore.getLot(req.params.id);
+  if (!lot) return res.status(404).json({ error: 'lot not found' });
+  if (lot.sold) {
+    return res.status(409).json({ error: 'this lot has already been sold' });
+  }
+  if (lot.bids.length === 0) {
+    return res.status(400).json({ error: 'no bids have been placed on this lot' });
+  }
+  const highest = lot.bids.reduce((best, b) => (b.amount > best.amount ? b : best), lot.bids[0]);
+  res.status(200).json(adminStore.markLotSold(req.params.id, highest.guestId, highest.amount));
+});
+
 module.exports = router;
