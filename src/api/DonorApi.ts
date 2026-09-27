@@ -21,6 +21,7 @@ export interface Lot {
   buyNowPrice: number | null;
   sold: boolean;
   soldTo: string | null;
+  winningBid: number | null;
 }
 
 export class DonorApi {
@@ -64,6 +65,18 @@ export class DonorApi {
       data: { guestId },
     });
     if (!res.ok()) throw new Error(`buyNow failed: ${res.status()}`);
+    return res.json();
+  }
+
+  async placeBid(
+    lotId: string,
+    guestId: string,
+    amount: number,
+  ): Promise<{ id: string; guestId: string; amount: number }> {
+    const res = await this.request.post(`${this.baseUrl}/lots/${lotId}/bid`, {
+      data: { guestId, amount },
+    });
+    if (!res.ok()) throw new Error(`placeBid failed: ${res.status()}`);
     return res.json();
   }
 

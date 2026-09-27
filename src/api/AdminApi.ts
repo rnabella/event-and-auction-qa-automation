@@ -19,6 +19,7 @@ export interface Lot {
   buyNowPrice: number | null;
   sold: boolean;
   soldTo: string | null;
+  winningBid: number | null;
 }
 
 export class AdminApi {
@@ -57,6 +58,12 @@ export class AdminApi {
       },
     });
     if (!res.ok()) throw new Error(`createLot failed: ${res.status()}`);
+    return res.json();
+  }
+
+  async closeLot(lotId: string): Promise<Lot> {
+    const res = await this.request.post(`${this.baseUrl}/admin/lots/${lotId}/close`);
+    if (!res.ok()) throw new Error(`closeLot failed: ${res.status()}`);
     return res.json();
   }
 
