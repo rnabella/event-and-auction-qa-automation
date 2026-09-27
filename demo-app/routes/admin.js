@@ -78,10 +78,11 @@ router.post('/lots/:id/close', requireAuth, (req, res) => {
   if (lot.sold) {
     return res.status(409).json({ error: 'this lot has already been sold' });
   }
-  if (lot.bids.length === 0) {
+  const bids = adminStore.getBidsForLot(req.params.id);
+  if (bids.length === 0) {
     return res.status(400).json({ error: 'no bids have been placed on this lot' });
   }
-  const highest = lot.bids.reduce((best, b) => (b.amount > best.amount ? b : best), lot.bids[0]);
+  const highest = bids.reduce((best, b) => (b.amount > best.amount ? b : best), bids[0]);
   res.status(200).json(adminStore.markLotSold(req.params.id, highest.guestId, highest.amount));
 });
 

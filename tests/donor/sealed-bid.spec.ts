@@ -33,3 +33,24 @@ test('donor can place a sealed bid on a lot @smoke', async ({ page, request }) =
   const confirmationPage = new BidConfirmationPage(page);
   await expect(confirmationPage.message).toHaveText('Your sealed bid of $40 has been submitted.');
 });
+
+test('trying to bid on a lot that has already been sold shows an error', async ({
+  page,
+  request,
+}) => {
+  const adminApi = new AdminApi(request, env.apiBaseUrl);
+  const donorApi = new DonorApi(request, env.apiBaseUrl);
+
+  await adminApi.login('admin', 'admin123');
+  const lot = await adminApi.createLot('Signed Guitar', 25, 50);
+  const buyer = await donorApi.registerGuest('Grace Hopper', 'grace@example.com');
+  const bidder = await donorApi.registerGuest('Ada Lovelace', 'ada@example.com');
+
+  await donorApi.buyNow(lot.id, buyer.id);
+
+  const bidPage = new BidPage(page);
+  await bidPage.open(lot.id, bidder.id);
+  await bidPage.placeBid(40);
+
+  await expect(bidPage.error).toHaveText('this lot has already been sold');
+});

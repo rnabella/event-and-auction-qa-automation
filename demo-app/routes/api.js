@@ -64,7 +64,7 @@ router.post('/lots/:id/buy-now', (req, res) => {
   if (lot.sold) {
     return res.status(409).json({ error: 'this lot has already been sold' });
   }
-  res.status(200).json(adminStore.markLotSold(req.params.id, guestId));
+  res.status(200).json(adminStore.markLotSold(req.params.id, guestId, lot.buyNowPrice));
 });
 
 router.post('/lots/:id/bid', (req, res) => {

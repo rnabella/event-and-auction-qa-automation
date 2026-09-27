@@ -58,3 +58,17 @@ test('buying a lot with a guestId that does not reference a real guest is reject
   });
   expect(res.status()).toBe(400);
 });
+
+test('buying a lot at its buy-now price records that price as the winningBid', async ({
+  request,
+}) => {
+  const adminApi = new AdminApi(request, env.apiBaseUrl);
+  const donorApi = new DonorApi(request, env.apiBaseUrl);
+
+  await adminApi.login('admin', 'admin123');
+  const lot = await adminApi.createLot('Signed Guitar', 25, 50);
+  const buyer = await donorApi.registerGuest('Ada Lovelace', 'ada@example.com');
+
+  const bought = await donorApi.buyNow(lot.id, buyer.id);
+  expect(bought.winningBid).toBe(50);
+});

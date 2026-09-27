@@ -25,11 +25,13 @@ const state = {
   tickets: new Map(),
   lots: new Map(),
   checklist: freshChecklist(),
+  bidsByLot: new Map(),
 };
 
 function reset() {
   state.tickets.clear();
   state.lots.clear();
+  state.bidsByLot.clear();
   state.checklist = freshChecklist();
   nextEntityId = 1;
   // Sessions are intentionally NOT cleared here. The `setup` Playwright
@@ -71,7 +73,6 @@ function createLot({ name, startPrice, buyNowPrice }) {
     buyNowPrice: buyNowPrice ?? null,
     sold: false,
     soldTo: null,
-    bids: [],
     winningBid: null,
   };
   state.lots.set(lot.id, lot);
@@ -103,8 +104,14 @@ function addBid(id, { guestId, amount }) {
   const lot = state.lots.get(id);
   if (!lot) return null;
   const bid = { id: makeEntityId('bid'), guestId, amount };
-  lot.bids.push(bid);
+  const bids = state.bidsByLot.get(id) || [];
+  bids.push(bid);
+  state.bidsByLot.set(id, bids);
   return bid;
+}
+
+function getBidsForLot(id) {
+  return state.bidsByLot.get(id) || [];
 }
 
 module.exports = {
@@ -117,4 +124,5 @@ module.exports = {
   getLot,
   markLotSold,
   addBid,
+  getBidsForLot,
 };

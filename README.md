@@ -36,7 +36,8 @@ src/          the framework: typed API clients (DonorApi, AdminApi),
               config — everything the tests are built on
 tests/        the tests themselves, organized by layer and by side:
               donor/, api/ (Phase 1); setup/, admin/ (Phase 2) — Phase 3a
-              (buy-now) added more tests to donor/ and api/, no new dirs
+              (buy-now) and Phase 3b-1 (sealed bidding) added more tests to
+              donor/ and api/, no new dirs
 ```
 
 `demo-app` is deliberately plain, untyped, unreviewed-by-the-framework's
@@ -91,7 +92,8 @@ A different, narrower pattern shows up in `tests/donor/buy-now.spec.ts`:
 a donor-side test that merely needs _a_ valid admin session (to create a
 fixture lot) logs in inline via the API, once, rather than reusing the
 `admin` project's storageState — it isn't testing admin login itself, so
-it doesn't need that machinery.
+it doesn't need that machinery. `tests/donor/sealed-bid.spec.ts` uses the
+identical pattern, for the identical reason.
 
 ## A design decision worth explaining: the lagging total
 
@@ -121,7 +123,7 @@ try.
 
 | Command                   | What it does                                                       |
 | ------------------------- | ------------------------------------------------------------------ |
-| `npm test`                | Full suite: donor + admin E2E (Chromium) and API tests, 19 tests   |
+| `npm test`                | Full suite: donor + admin E2E (Chromium) and API tests, 29 tests   |
 | `npm run test:smoke`      | Just the `@smoke`-tagged subset — the critical path, fast          |
 | `npm run test:regression` | Alias for the full suite (same as `npm test`)                      |
 | `npm run demo-app`        | Runs the demo app standalone on `:3000`, for poking at it manually |
@@ -141,7 +143,7 @@ tests reset it between runs via `POST /api/test/reset`. Two tests running
 concurrently against that one store can interleave their resets and
 writes — which is exactly the bug described above. Serializing
 (`workers: 1`) closes that off simply, at the cost of parallelism, which
-is a fine trade at nineteen tests. A more scalable fix — namespacing state
+is a fine trade at twenty-nine tests. A more scalable fix — namespacing state
 per test or per worker — is the natural next step if this suite grows
 enough for single-worker execution to become a real bottleneck.
 
@@ -170,5 +172,11 @@ and negative-auth coverage. Complete.
 its fixed buy-now price; a second purchase attempt, or a purchase attempt
 on a lot with no buy-now price, is rejected with a real error. Complete.
 
-Planned next: additional donor scenarios — sealed bidding, raffle
-entry — plus cross-browser hardening (Phase 3).
+**Phase 3b-1** ("sealed bidding"): donors can place sealed bids on a lot,
+and an admin can close bidding to award it to the highest bidder — bids
+are stored separately from the lot object (`adminStore`'s `bidsByLot`),
+so no route that serializes a lot can ever leak rival bids before
+bidding closes. Complete.
+
+Planned next: additional donor scenarios — raffle entry — plus
+cross-browser hardening (Phase 3).
