@@ -86,4 +86,29 @@ router.post('/lots/:id/close', requireAuth, (req, res) => {
   res.status(200).json(adminStore.markLotSold(req.params.id, highest.guestId, highest.amount));
 });
 
+router.post('/raffles', requireAuth, (req, res) => {
+  const { name, entryPrice } = req.body;
+  if (!name) {
+    return res.status(400).json({ error: 'name is required' });
+  }
+  if (typeof entryPrice !== 'number' || entryPrice <= 0) {
+    return res.status(400).json({ error: 'entryPrice must be a positive number' });
+  }
+  res.status(201).json(adminStore.createRaffle({ name, entryPrice }));
+});
+
+router.post('/raffles/:id/draw', requireAuth, (req, res) => {
+  const raffle = adminStore.getRaffle(req.params.id);
+  if (!raffle) return res.status(404).json({ error: 'raffle not found' });
+  if (raffle.drawn) {
+    return res.status(409).json({ error: 'this raffle has already been drawn' });
+  }
+  const entries = adminStore.getEntriesForRaffle(req.params.id);
+  if (entries.length === 0) {
+    return res.status(400).json({ error: 'no entries have been submitted for this raffle' });
+  }
+  const winner = entries[Math.floor(Math.random() * entries.length)];
+  res.status(200).json(adminStore.markRaffleDrawn(req.params.id, winner.guestId));
+});
+
 module.exports = router;
