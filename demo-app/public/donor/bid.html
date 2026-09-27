@@ -1,0 +1,23 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Place a Sealed Bid</title>
+  </head>
+  <body>
+    <h1>Place a Sealed Bid</h1>
+    <form id="bid-form">
+      <input
+        id="bid-amount"
+        name="amount"
+        type="number"
+        min="1"
+        step="1"
+        placeholder="Your bid (USD)"
+        required
+      />
+      <button type="submit">Submit sealed bid</button>
+    </form>
+    <p id="bid-error" hidden></p>
+    <script src="/donor/bid.js"></script>
+  </body>
+</html>
