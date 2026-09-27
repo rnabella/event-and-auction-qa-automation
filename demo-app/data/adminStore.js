@@ -17,6 +17,7 @@ function freshChecklist() {
   return [
     { id: 'set-up-tickets', label: 'Set up tickets', complete: false },
     { id: 'set-up-lots', label: 'Set up auction lots', complete: false },
+    { id: 'set-up-raffle', label: 'Set up a raffle', complete: false },
   ];
 }
 
@@ -26,12 +27,16 @@ const state = {
   lots: new Map(),
   checklist: freshChecklist(),
   bidsByLot: new Map(),
+  raffles: new Map(),
+  entriesByRaffle: new Map(),
 };
 
 function reset() {
   state.tickets.clear();
   state.lots.clear();
   state.bidsByLot.clear();
+  state.raffles.clear();
+  state.entriesByRaffle.clear();
   state.checklist = freshChecklist();
   nextEntityId = 1;
   // Sessions are intentionally NOT cleared here. The `setup` Playwright
@@ -114,6 +119,45 @@ function getBidsForLot(id) {
   return state.bidsByLot.get(id) || [];
 }
 
+function createRaffle({ name, entryPrice }) {
+  const raffle = {
+    id: makeEntityId('raffle'),
+    name,
+    entryPrice,
+    drawn: false,
+    winnerGuestId: null,
+  };
+  state.raffles.set(raffle.id, raffle);
+  const item = state.checklist.find((i) => i.id === 'set-up-raffle');
+  item.complete = true;
+  return raffle;
+}
+
+function getRaffle(id) {
+  return state.raffles.get(id) || null;
+}
+
+function addEntry(raffleId, { guestId }) {
+  if (!state.raffles.has(raffleId)) return null;
+  const entry = { id: makeEntityId('entry'), guestId };
+  const entries = state.entriesByRaffle.get(raffleId) || [];
+  entries.push(entry);
+  state.entriesByRaffle.set(raffleId, entries);
+  return entry;
+}
+
+function getEntriesForRaffle(raffleId) {
+  return state.entriesByRaffle.get(raffleId) || [];
+}
+
+function markRaffleDrawn(id, winnerGuestId) {
+  const raffle = state.raffles.get(id);
+  if (!raffle) return null;
+  raffle.drawn = true;
+  raffle.winnerGuestId = winnerGuestId;
+  return raffle;
+}
+
 module.exports = {
   reset,
   login,
@@ -125,4 +169,9 @@ module.exports = {
   markLotSold,
   addBid,
   getBidsForLot,
+  createRaffle,
+  getRaffle,
+  addEntry,
+  getEntriesForRaffle,
+  markRaffleDrawn,
 };
