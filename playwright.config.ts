@@ -33,6 +33,16 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'] },
     },
     {
+      name: 'firefox',
+      testDir: './tests/donor',
+      use: { ...devices['Desktop Firefox'] },
+    },
+    {
+      name: 'webkit',
+      testDir: './tests/donor',
+      use: { ...devices['Desktop Safari'] },
+    },
+    {
       name: 'api',
       testDir: './tests/api',
     },
@@ -43,10 +53,34 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'] },
     },
     {
+      name: 'setup-firefox',
+      testDir: './tests/setup',
+      testMatch: /.*\.setup\.ts/,
+      use: { ...devices['Desktop Firefox'] },
+    },
+    {
+      name: 'setup-webkit',
+      testDir: './tests/setup',
+      testMatch: /.*\.setup\.ts/,
+      use: { ...devices['Desktop Safari'] },
+    },
+    {
       name: 'admin',
       testDir: './tests/admin',
-      use: { ...devices['Desktop Chrome'], storageState: 'playwright/.auth/admin.json' },
+      use: { ...devices['Desktop Chrome'], storageState: 'playwright/.auth/admin-setup.json' },
       dependencies: ['setup'],
+    },
+    {
+      name: 'admin-firefox',
+      testDir: './tests/admin',
+      use: { ...devices['Desktop Firefox'], storageState: 'playwright/.auth/admin-setup-firefox.json' },
+      dependencies: ['setup-firefox'],
+    },
+    {
+      name: 'admin-webkit',
+      testDir: './tests/admin',
+      use: { ...devices['Desktop Safari'], storageState: 'playwright/.auth/admin-setup-webkit.json' },
+      dependencies: ['setup-webkit'],
     },
   ],
 });
