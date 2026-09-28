@@ -125,16 +125,16 @@ try.
 
 ## Scripts
 
-| Command                   | What it does                                                       |
-| ------------------------- | ------------------------------------------------------------------ |
+| Command                   | What it does                                                                                                       |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------ |
 | `npm test`                | Full suite: donor + admin E2E across Chromium, Firefox, and WebKit, plus API tests — 41 tests, 81 executions total |
-| `npm run test:smoke`      | Just the `@smoke`-tagged subset — the critical path, fast          |
-| `npm run test:regression` | Alias for the full suite (same as `npm test`)                      |
-| `npm run demo-app`        | Runs the demo app standalone on `:3000`, for poking at it manually |
-| `npm run typecheck`       | `tsc --noEmit` over `src/`, `tests/`, and the Playwright config    |
-| `npm run lint`            | ESLint over the TypeScript framework (not `demo-app/`)             |
-| `npm run format`          | Prettier check                                                     |
-| `npm run format:write`    | Prettier, applied                                                  |
+| `npm run test:smoke`      | Just the `@smoke`-tagged subset — the critical path, fast                                                          |
+| `npm run test:regression` | Alias for the full suite (same as `npm test`)                                                                      |
+| `npm run demo-app`        | Runs the demo app standalone on `:3000`, for poking at it manually                                                 |
+| `npm run typecheck`       | `tsc --noEmit` over `src/`, `tests/`, and the Playwright config                                                    |
+| `npm run lint`            | ESLint over the TypeScript framework (not `demo-app/`)                                                             |
+| `npm run format`          | Prettier check                                                                                                     |
+| `npm run format:write`    | Prettier, applied                                                                                                  |
 
 CI (`.github/workflows/ci.yml`) runs typecheck → lint → format → test on
 every push and pull request, and uploads the Playwright HTML report as a

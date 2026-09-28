@@ -73,13 +73,19 @@ export default defineConfig({
     {
       name: 'admin-firefox',
       testDir: './tests/admin',
-      use: { ...devices['Desktop Firefox'], storageState: 'playwright/.auth/admin-setup-firefox.json' },
+      use: {
+        ...devices['Desktop Firefox'],
+        storageState: 'playwright/.auth/admin-setup-firefox.json',
+      },
       dependencies: ['setup-firefox'],
     },
     {
       name: 'admin-webkit',
       testDir: './tests/admin',
-      use: { ...devices['Desktop Safari'], storageState: 'playwright/.auth/admin-setup-webkit.json' },
+      use: {
+        ...devices['Desktop Safari'],
+        storageState: 'playwright/.auth/admin-setup-webkit.json',
+      },
       dependencies: ['setup-webkit'],
     },
   ],
