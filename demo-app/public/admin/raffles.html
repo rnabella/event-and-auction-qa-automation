@@ -1,0 +1,24 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Create Raffle</title>
+  </head>
+  <body>
+    <h1>Create Raffle</h1>
+    <form id="raffle-form">
+      <input id="raffle-name" name="name" placeholder="Raffle name" required />
+      <input
+        id="raffle-entry-price"
+        name="entryPrice"
+        type="number"
+        min="1"
+        step="1"
+        placeholder="Entry price (USD)"
+        required
+      />
+      <button type="submit">Create raffle</button>
+    </form>
+    <p id="raffle-error" hidden></p>
+    <script src="/admin/raffles.js"></script>
+  </body>
+</html>
