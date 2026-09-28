@@ -83,6 +83,25 @@ router.post('/lots/:id/bid', (req, res) => {
   res.status(201).json(adminStore.addBid(req.params.id, { guestId, amount }));
 });
 
+router.get('/raffles/:id', (req, res) => {
+  const raffle = adminStore.getRaffle(req.params.id);
+  if (!raffle) return res.status(404).json({ error: 'raffle not found' });
+  res.json(raffle);
+});
+
+router.post('/raffles/:id/enter', (req, res) => {
+  const { guestId } = req.body;
+  const raffle = adminStore.getRaffle(req.params.id);
+  if (!raffle) return res.status(404).json({ error: 'raffle not found' });
+  if (!guestId || !store.getGuest(guestId)) {
+    return res.status(400).json({ error: 'guestId must reference an existing guest' });
+  }
+  if (raffle.drawn) {
+    return res.status(409).json({ error: 'this raffle has already been drawn' });
+  }
+  res.status(201).json(adminStore.addEntry(req.params.id, { guestId }));
+});
+
 router.post('/test/reset', (req, res) => {
   store.reset();
   adminStore.reset();
