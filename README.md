@@ -14,7 +14,7 @@ around.
 
 ```bash
 npm ci
-npx playwright install chromium
+npx playwright install chromium firefox webkit
 npm test
 ```
 
@@ -73,10 +73,14 @@ Admin routes (`/api/admin/*`) require a session cookie, issued by
 `POST /api/admin/login`. Rather than logging in inside every admin test,
 the suite uses Playwright's standard idiom for this: a `setup` project
 (`tests/setup/admin-login.setup.ts`) logs in once and saves the resulting
-cookie to `playwright/.auth/admin.json` (gitignored — it's session state,
-not something to commit); the `admin` project declares `setup` as a
-dependency and reuses that saved storageState for every test in
-`tests/admin/`. No admin test calls `login()` itself.
+cookie to `playwright/.auth/admin-${testInfo.project.name}.json`
+(gitignored — it's session state, not something to commit). There's one
+such file per engine — `admin-setup.json`, `admin-setup-firefox.json`, and
+`admin-setup-webkit.json` — each written by its own `setup`/`setup-firefox`/
+`setup-webkit` project; the matching `admin`/`admin-firefox`/`admin-webkit`
+project declares that `setup-*` project as a dependency and reuses its
+saved storageState for every test in `tests/admin/`. No admin test calls
+`login()` itself.
 
 One non-obvious thing this surfaced: `--grep @smoke` does **not** filter
 out the `setup` project's test, even when it isn't itself tagged. That's
@@ -147,7 +151,8 @@ tests reset it between runs via `POST /api/test/reset`. Two tests running
 concurrently against that one store can interleave their resets and
 writes — which is exactly the bug described above. Serializing
 (`workers: 1`) closes that off simply, at the cost of parallelism, which
-is a fine trade at forty-one tests. A more scalable fix — namespacing state
+is a fine trade at forty-one tests (eighty-one executions across three
+engines). A more scalable fix — namespacing state
 per test or per worker — is the natural next step if this suite grows
 enough for single-worker execution to become a real bottleneck.
 
@@ -215,7 +220,7 @@ new project pairs in `playwright.config.ts` (`firefox`, `webkit`, and a
 so the three engines don't clobber each other's storageState in one
 `npm test` run). No test code changed and no bugs were found: a full run
 and a `--repeat-each=5` run of every timing-sensitive donor spec passed
-cleanly on both engines before any config changed, confirming what "Why
+cleanly on both new engines before any config changed, confirming what "Why
 the suite runs single-worker" (above) already implies — the race class a
 shared in-memory store would otherwise allow is closed by `workers: 1`
 itself, independent of browser engine. Complete.

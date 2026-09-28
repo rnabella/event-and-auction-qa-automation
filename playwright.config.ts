@@ -43,6 +43,9 @@ export default defineConfig({
       use: { ...devices['Desktop Safari'] },
     },
     {
+      // No browser-engine variants here: this project has no `use` device — it hits
+      // the HTTP layer directly via Playwright's `request` fixture, not a browser
+      // page, so there's no "engine" for it to vary by.
       name: 'api',
       testDir: './tests/api',
     },
