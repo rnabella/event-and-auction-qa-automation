@@ -24,6 +24,14 @@ export interface Lot {
   winningBid: number | null;
 }
 
+export interface Raffle {
+  id: string;
+  name: string;
+  entryPrice: number;
+  drawn: boolean;
+  winnerGuestId: string | null;
+}
+
 export class DonorApi {
   constructor(
     private request: APIRequestContext,
@@ -77,6 +85,14 @@ export class DonorApi {
       data: { guestId, amount },
     });
     if (!res.ok()) throw new Error(`placeBid failed: ${res.status()}`);
+    return res.json();
+  }
+
+  async enterRaffle(raffleId: string, guestId: string): Promise<{ id: string; guestId: string }> {
+    const res = await this.request.post(`${this.baseUrl}/raffles/${raffleId}/enter`, {
+      data: { guestId },
+    });
+    if (!res.ok()) throw new Error(`enterRaffle failed: ${res.status()}`);
     return res.json();
   }
 

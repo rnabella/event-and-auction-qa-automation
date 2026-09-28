@@ -22,6 +22,14 @@ export interface Lot {
   winningBid: number | null;
 }
 
+export interface Raffle {
+  id: string;
+  name: string;
+  entryPrice: number;
+  drawn: boolean;
+  winnerGuestId: string | null;
+}
+
 export class AdminApi {
   constructor(
     private request: APIRequestContext,
@@ -64,6 +72,20 @@ export class AdminApi {
   async closeLot(lotId: string): Promise<Lot> {
     const res = await this.request.post(`${this.baseUrl}/admin/lots/${lotId}/close`);
     if (!res.ok()) throw new Error(`closeLot failed: ${res.status()}`);
+    return res.json();
+  }
+
+  async createRaffle(name: string, entryPrice: number): Promise<Raffle> {
+    const res = await this.request.post(`${this.baseUrl}/admin/raffles`, {
+      data: { name, entryPrice },
+    });
+    if (!res.ok()) throw new Error(`createRaffle failed: ${res.status()}`);
+    return res.json();
+  }
+
+  async drawRaffle(raffleId: string): Promise<Raffle> {
+    const res = await this.request.post(`${this.baseUrl}/admin/raffles/${raffleId}/draw`);
+    if (!res.ok()) throw new Error(`drawRaffle failed: ${res.status()}`);
     return res.json();
   }
 
