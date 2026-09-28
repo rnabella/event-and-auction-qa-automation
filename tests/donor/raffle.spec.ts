@@ -33,7 +33,9 @@ test('donor can enter a raffle @smoke', async ({ page, request }) => {
   await page.waitForURL(/raffle-confirmation\.html/);
 
   const confirmationPage = new RaffleConfirmationPage(page);
-  await expect(confirmationPage.message).toHaveText('You\'ve entered "Weekend Getaway". Good luck!');
+  await expect(confirmationPage.message).toHaveText(
+    'You\'ve entered "Weekend Getaway". Good luck!',
+  );
 });
 
 test('trying to enter a raffle that has already been drawn shows an error', async ({
