@@ -38,7 +38,10 @@ tests/        the tests themselves, organized by layer and by side:
               donor/, api/ (Phase 1); setup/, admin/ (Phase 2) — Phase 3a
               (buy-now) and Phase 3b-1 (sealed bidding) added more tests to
               donor/ and api/, no new dirs; Phase 3b-2 (raffle entry) added
-              tests to donor/, api/, and admin/
+              tests to donor/, api/, and admin/. Phase 3c (cross-browser)
+              added no new test files — it added Firefox and WebKit
+              projects in playwright.config.ts that run the same donor/,
+              setup/, and admin/ specs through three engines instead of one
 ```
 
 `demo-app` is deliberately plain, untyped, unreviewed-by-the-framework's
@@ -124,7 +127,7 @@ try.
 
 | Command                   | What it does                                                       |
 | ------------------------- | ------------------------------------------------------------------ |
-| `npm test`                | Full suite: donor + admin E2E (Chromium) and API tests, 41 tests   |
+| `npm test`                | Full suite: donor + admin E2E across Chromium, Firefox, and WebKit, plus API tests — 41 tests, 81 executions total |
 | `npm run test:smoke`      | Just the `@smoke`-tagged subset — the critical path, fast          |
 | `npm run test:regression` | Alias for the full suite (same as `npm test`)                      |
 | `npm run demo-app`        | Runs the demo app standalone on `:3000`, for poking at it manually |
@@ -158,6 +161,12 @@ sessions their own counter, one `reset()` doesn't touch. The negative-auth
 tests (`tests/admin/auth.spec.ts`, `login.spec.ts`) exist specifically
 because the phase that added authentication had, for a while, zero tests
 proving authentication denied anything.
+
+This is also why cross-browser coverage (Phase 3c, below) needed no
+race-condition fixes to add: `workers: 1` serializes every test's access to
+the shared store regardless of which engine is driving the browser, so the
+race class this section describes was already closed off before Firefox
+and WebKit were ever in the picture.
 
 ## Status
 
@@ -199,4 +208,21 @@ completes a checklist item gets one, in the same phase it's added
 raffle) does not get one on its own — those are exercised through the API
 and existing pages instead.
 
-Planned next: cross-browser hardening (Phase 3).
+**Phase 3c** ("cross-browser hardening"): the donor, setup, and admin
+layers now run through Firefox and WebKit in addition to Chromium — three
+new project pairs in `playwright.config.ts` (`firefox`, `webkit`, and a
+`setup-*`/`admin-*` pair per engine, each with its own saved admin session
+so the three engines don't clobber each other's storageState in one
+`npm test` run). No test code changed and no bugs were found: a full run
+and a `--repeat-each=5` run of every timing-sensitive donor spec passed
+cleanly on both engines before any config changed, confirming what "Why
+the suite runs single-worker" (above) already implies — the race class a
+shared in-memory store would otherwise allow is closed by `workers: 1`
+itself, independent of browser engine. Complete.
+
+This phase also settles why there's no separate "maintenance cleanup"
+script in this repo, unlike some real-world suites that need one: those
+tools exist to delete rows a persistent backend accumulates across test
+runs. This demo app has no persistent backend — its whole store lives in
+memory and `POST /api/test/reset` wipes it before every test — so there is
+nothing for a cleanup script to clean up. Omitted on purpose, not missing.
