@@ -4,8 +4,8 @@
   "private": true,
   "description": "Playwright + TypeScript QA automation portfolio project for a fictional Event & Auction Platform",
   "scripts": {
-    "test": "playwright test --project=chromium --project=api --project=setup --project=admin",
-    "test:smoke": "playwright test --project=chromium --project=api --project=setup --project=admin --grep @smoke",
+    "test": "playwright test --project=chromium --project=firefox --project=webkit --project=api --project=setup --project=setup-firefox --project=setup-webkit --project=admin --project=admin-firefox --project=admin-webkit",
+    "test:smoke": "playwright test --project=chromium --project=firefox --project=webkit --project=api --project=setup --project=setup-firefox --project=setup-webkit --project=admin --project=admin-firefox --project=admin-webkit --grep @smoke",
     "test:regression": "npm run test",
     "demo-app": "node demo-app/server.js",
     "typecheck": "tsc --noEmit",
