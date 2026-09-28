@@ -43,6 +43,7 @@ test('drawing a raffle with multiple guests awards it to one of the real entrant
   await donorApi.enterRaffle(raffle.id, guestB.id);
 
   const drawn = await adminApi.drawRaffle(raffle.id);
+  expect(drawn.drawn).toBe(true);
   expect([guestA.id, guestB.id]).toContain(drawn.winnerGuestId);
 });
 
@@ -73,6 +74,19 @@ test('entering a raffle that does not exist is rejected', async ({ request }) =>
     data: { guestId: 'guest-1' },
   });
   expect(res.status()).toBe(404);
+});
+
+test('entering a raffle with a guestId that does not reference a real guest is rejected', async ({
+  request,
+}) => {
+  const adminApi = new AdminApi(request, env.apiBaseUrl);
+  await adminApi.login('admin', 'admin123');
+  const raffle = await adminApi.createRaffle('Weekend Getaway', 10);
+
+  const res = await request.post(`${env.apiBaseUrl}/raffles/${raffle.id}/enter`, {
+    data: { guestId: 'not-a-real-guest' },
+  });
+  expect(res.status()).toBe(400);
 });
 
 test('the public raffle endpoint never exposes entry data', async ({ request }) => {

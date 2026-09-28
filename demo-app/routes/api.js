@@ -89,6 +89,11 @@ router.get('/raffles/:id', (req, res) => {
   res.json(raffle);
 });
 
+// Entering a raffle has no payment step — entryPrice is collected and
+// displayed on the donor page, but nothing charges it. Deliberate scope
+// decision for this demo, not an oversight: this app has no real payment
+// processing anywhere (donations aren't charged either), so a raffle
+// "purchase" here just means "recorded as entered."
 router.post('/raffles/:id/enter', (req, res) => {
   const { guestId } = req.body;
   const raffle = adminStore.getRaffle(req.params.id);

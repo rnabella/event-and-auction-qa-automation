@@ -37,3 +37,17 @@ test('a rejected ticket submission does not complete the checklist item', async 
   const ticketsItem = checklist.find((item) => item.id === 'set-up-tickets');
   expect(ticketsItem?.complete).toBe(false);
 });
+
+test('creating a raffle without a name is rejected', async ({ request }) => {
+  const res = await request.post(`${env.apiBaseUrl}/admin/raffles`, {
+    data: { entryPrice: 10 },
+  });
+  expect(res.status()).toBe(400);
+});
+
+test('creating a raffle with a non-positive entryPrice is rejected', async ({ request }) => {
+  const res = await request.post(`${env.apiBaseUrl}/admin/raffles`, {
+    data: { name: 'Bad Raffle', entryPrice: -5 },
+  });
+  expect(res.status()).toBe(400);
+});

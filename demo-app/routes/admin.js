@@ -107,6 +107,9 @@ router.post('/raffles/:id/draw', requireAuth, (req, res) => {
   if (entries.length === 0) {
     return res.status(400).json({ error: 'no entries have been submitted for this raffle' });
   }
+  // Math.random() is fine for a demo fixture but isn't cryptographically
+  // secure or independently auditable — a real prize draw would need a
+  // seeded, recorded, or CSPRNG-based source.
   const winner = entries[Math.floor(Math.random() * entries.length)];
   res.status(200).json(adminStore.markRaffleDrawn(req.params.id, winner.guestId));
 });

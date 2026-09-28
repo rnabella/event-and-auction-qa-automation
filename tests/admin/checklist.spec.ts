@@ -8,10 +8,11 @@ test.beforeEach(async ({ request }) => {
   await api.reset();
 });
 
-test('checklist starts with both setup items incomplete @smoke', async ({ page }) => {
+test('checklist starts with all setup items incomplete @smoke', async ({ page }) => {
   const checklistPage = new ChecklistPage(page);
   await checklistPage.open();
 
   await expect(checklistPage.item('set-up-tickets')).toHaveText('Set up tickets: Incomplete');
   await expect(checklistPage.item('set-up-lots')).toHaveText('Set up auction lots: Incomplete');
+  await expect(checklistPage.item('set-up-raffle')).toHaveText('Set up a raffle: Incomplete');
 });

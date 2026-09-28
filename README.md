@@ -30,14 +30,15 @@ demo-app/     the system under test — a small Express app with an
               in-memory store, a JSON API, and static pages for two
               sides: donor-facing (register → donate → checkout →
               confirm) and admin-facing (login, a setup checklist,
-              creating tickets and auction lots)
+              creating tickets, auction lots, and raffles)
 src/          the framework: typed API clients (DonorApi, AdminApi),
               Playwright Page Objects for both sides, environment
               config — everything the tests are built on
 tests/        the tests themselves, organized by layer and by side:
               donor/, api/ (Phase 1); setup/, admin/ (Phase 2) — Phase 3a
               (buy-now) and Phase 3b-1 (sealed bidding) added more tests to
-              donor/ and api/, no new dirs
+              donor/ and api/, no new dirs; Phase 3b-2 (raffle entry) added
+              tests to donor/, api/, and admin/
 ```
 
 `demo-app` is deliberately plain, untyped, unreviewed-by-the-framework's
@@ -123,7 +124,7 @@ try.
 
 | Command                   | What it does                                                       |
 | ------------------------- | ------------------------------------------------------------------ |
-| `npm test`                | Full suite: donor + admin E2E (Chromium) and API tests, 29 tests   |
+| `npm test`                | Full suite: donor + admin E2E (Chromium) and API tests, 41 tests   |
 | `npm run test:smoke`      | Just the `@smoke`-tagged subset — the critical path, fast          |
 | `npm run test:regression` | Alias for the full suite (same as `npm test`)                      |
 | `npm run demo-app`        | Runs the demo app standalone on `:3000`, for poking at it manually |
@@ -143,7 +144,7 @@ tests reset it between runs via `POST /api/test/reset`. Two tests running
 concurrently against that one store can interleave their resets and
 writes — which is exactly the bug described above. Serializing
 (`workers: 1`) closes that off simply, at the cost of parallelism, which
-is a fine trade at twenty-nine tests. A more scalable fix — namespacing state
+is a fine trade at forty-one tests. A more scalable fix — namespacing state
 per test or per worker — is the natural next step if this suite grows
 enough for single-worker execution to become a real bottleneck.
 
@@ -178,5 +179,24 @@ are stored separately from the lot object (`adminStore`'s `bidsByLot`),
 so no route that serializes a lot can ever leak rival bids before
 bidding closes. Complete.
 
-Planned next: additional donor scenarios — raffle entry — plus
-cross-browser hardening (Phase 3).
+**Phase 3b-2** ("raffle entry"): an admin can create a raffle (completing
+its own checklist item, same as tickets and lots) and draw a winner from
+the entrants; donors can enter a raffle via the donor UI and the API.
+Complete.
+
+Raffle entries deliberately live in their own store (`adminStore`'s
+`entriesByRaffle`), not on the raffle object itself — the same
+lot-object/bids-object separation Phase 3b-1 needed a fix to arrive at is
+applied here from the start, so entries can never leak through a route
+that serializes a raffle before the draw. Reapplying that lesson pre-emptively
+this time, not rediscovering it after something broke.
+
+This phase also settles the rule this codebase has been following for when
+a new entity type gets its own admin page: an entity whose creation
+completes a checklist item gets one, in the same phase it's added
+(tickets, lots, and now raffles). A field on an existing entity
+(`buyNowPrice`) or a lifecycle transition on one (closing a lot, drawing a
+raffle) does not get one on its own — those are exercised through the API
+and existing pages instead.
+
+Planned next: cross-browser hardening (Phase 3).
